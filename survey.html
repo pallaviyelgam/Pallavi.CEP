@@ -1575,19 +1575,18 @@ footer{
 }
 
 .total-count-box {
-    background: linear-gradient(135deg, rgba(45, 125, 255, 0.2), rgba(0, 198, 255, 0.2));
+    background: linear-gradient(135deg, #ff3333, #ff6666);
     padding: 25px;
-    border-radius: 12px;
+    border-radius: 20px;
     text-align: center;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 22px;
+    font-weight: 900;
     margin-top: 30px;
-    color: var(--text-strong);
-    border: 2px solid rgba(45, 125, 255, 0.6);
-    box-shadow: 0 8px 20px rgba(45, 125, 255, 0.25);
+    color: #000;
+    border: 3px solid #cc0000;
+    box-shadow: 0 12px 35px rgba(255, 51, 51, 0.5);
     position: relative;
     overflow: visible;
-    backdrop-filter: blur(8px);
     width: 100%;
     max-width: 100%;
 }
@@ -1614,10 +1613,10 @@ footer{
 
 .count-info {
     margin-bottom: 20px;
-    font-size: 19px;
-    color: var(--text-strong);
-    font-weight: 800;
-    letter-spacing: 0.8px;
+    font-size: 24px;
+    color: #000;
+    font-weight: 900;
+    letter-spacing: 1px;
 }
 
 .vote-totals {
@@ -1629,42 +1628,42 @@ footer{
 }
 
 .vote-total-btn {
-    padding: 12px 24px;
-    border: 2px solid;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 16px;
+    padding: 14px 28px;
+    border: 3px solid;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 18px;
     cursor: default;
     transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
     position: relative;
     z-index: 2;
-    min-width: 140px;
-    letter-spacing: 0.4px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    min-width: 160px;
+    letter-spacing: 0.6px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
 }
 
 .vote-total-btn.yes-btn {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    background: linear-gradient(135deg, #22cc22, #00ff00);
     color: white;
-    border-color: #27ae60;
+    border-color: #00cc00;
 }
 
 .vote-total-btn.yes-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 24px rgba(46, 204, 113, 0.35);
-    filter: brightness(1.08);
+    box-shadow: 0 10px 24px rgba(34, 204, 34, 0.6);
+    filter: brightness(1.15);
 }
 
 .vote-total-btn.no-btn {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, #0055ff, #0077ff);
     color: white;
-    border-color: #c0392b;
+    border-color: #0055ff;
 }
 
 .vote-total-btn.no-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 24px rgba(231, 76, 60, 0.35);
-    filter: brightness(1.08);
+    box-shadow: 0 10px 24px rgba(0, 119, 255, 0.6);
+    filter: brightness(1.15);
 }
 
     </style>
