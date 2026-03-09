@@ -176,13 +176,24 @@
   }
 
   function loadQuestion() {
+    // Only load questions if pollContainer exists (survey page)
     var container = document.getElementById("pollContainer");
-    if (!container) return;
+    if (!container) {
+      return;
+    }
     container.innerHTML = "";
+
+    var answeredCount = 0;
+    var totalYes = 0;
+    var totalNo = 0;
 
     pollQuestions.forEach(function (q, qIdx) {
       var votes = getYesNoVotes(qIdx);
       var voted = localStorage.getItem("voted_" + qIdx);
+      if (voted) answeredCount++;
+      totalYes += votes[0];
+      totalNo += votes[1];
+      
       container.innerHTML +=
         '<div class="yn-question-card">' +
         '<h4 class="yn-question-title">Q' + (qIdx + 1) + ". " + q.question + "</h4>" +
@@ -192,6 +203,19 @@
         "</div>" +
         "</div>";
     });
+
+    // Calculate progress percentage
+    var progressPercent = (answeredCount / pollQuestions.length) * 100;
+    var completedClass = answeredCount === pollQuestions.length ? ' completed' : '';
+
+    // Add dynamic question count box with yes/no totals
+    container.innerHTML += '<div class="total-count-box' + completedClass + '" style="--progress: ' + progressPercent + '%">' +
+      '<div class="count-info">Questions Answered: ' + answeredCount + '/' + pollQuestions.length + '</div>' +
+      '<div class="vote-totals">' +
+      '<button class="vote-total-btn yes-btn">✓ Yes: ' + totalYes + '</button>' +
+      '<button class="vote-total-btn no-btn">✕ No: ' + totalNo + '</button>' +
+      '</div>' +
+      '</div>';
   }
 
   window.voteOption = function (questionIdx, optionIdx) {
@@ -275,32 +299,77 @@
     var frame = document.getElementById("researchPdfFrame");
     if (!link && !frame) return;
 
-    var inHtmlFolder = window.location.pathname.indexOf("/html/") !== -1;
-    var candidates = inHtmlFolder
-      ? ["../img/pallavi.pdf", "img/pallavi.pdf", "/img/pallavi.pdf"]
-      : ["img/pallavi.pdf", "./img/pallavi.pdf", "../img/pallavi.pdf", "/img/pallavi.pdf"];
-
-    function applyPath(path) {
-      if (link) link.href = path;
-      if (frame) frame.src = path;
-    }
-
-    function tryNext(index) {
-      if (index >= candidates.length) return;
-      var path = candidates[index];
-
-      fetch(path, { method: "HEAD" })
-        .then(function (res) {
-          if (res.ok) applyPath(path);
-          else tryNext(index + 1);
-        })
-        .catch(function () {
-          tryNext(index + 1);
+    // For file:// protocol, we need to handle downloads differently
+    if (window.location.protocol === "file:") {
+      if (link) {
+        link.addEventListener("click", function(e) {
+          e.preventDefault();
+          downloadPdfFile();
         });
+        link.textContent = "Download Research Paper (PDF)"; // Keep download text
+        link.removeAttribute("download"); // Remove download attribute
+      }
+      if (frame) {
+        // For file://, we can't embed PDF directly, so show download message
+        frame.style.display = "none";
+        var fallbackMsg = document.createElement("div");
+        fallbackMsg.innerHTML = '<p style="text-align:center; padding:20px; background:#f0f0f0; border-radius:10px;">PDF preview not available when opening files directly. <a href="#" onclick="downloadPdfFile(); return false;" style="color:#007bff;">Click here to download the PDF</a> (works in Chrome/Edge).</p>';
+        frame.parentNode.insertBefore(fallbackMsg, frame);
+      }
+    } else {
+      // For http:// protocol, use normal paths
+      var pdfPath = "pallavi.pdf";
+      if (link) link.href = pdfPath;
+      if (frame) frame.src = pdfPath;
     }
+  }
 
-    applyPath(candidates[0]);
-    if (window.location.protocol !== "file:") tryNext(0);
+  function downloadPdfFile() {
+    // Try modern File System Access API first (Chrome/Edge)
+    if ('showSaveFilePicker' in window) {
+      downloadWithFileSystemAPI();
+    } else {
+      // Fallback: Open in new tab with instructions
+      openPdfWithInstructions();
+    }
+  }
+
+  async function downloadWithFileSystemAPI() {
+    try {
+      // Fetch the PDF as blob
+      const response = await fetch('pallavi.pdf');
+      const blob = await response.blob();
+
+      // Show save dialog
+      const handle = await window.showSaveFilePicker({
+        suggestedName: 'pallavi.pdf',
+        types: [{
+          description: 'PDF Document',
+          accept: {'application/pdf': ['.pdf']},
+        }],
+      });
+
+      // Write the file
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+
+    } catch (error) {
+      console.log('File System API failed, using fallback');
+      openPdfWithInstructions();
+    }
+  }
+
+  function openPdfWithInstructions() {
+    // Open PDF in new tab
+    const pdfWindow = window.open('pallavi.pdf', '_blank');
+
+    // Show instructions after a short delay
+    setTimeout(() => {
+      if (pdfWindow) {
+        alert('PDF opened in new tab. To download: Right-click the PDF and select "Save as..." or use Ctrl+S (Cmd+S on Mac)');
+      }
+    }, 1000);
   }
 
   function init3DDesign() {
@@ -398,8 +467,11 @@
     initCharts();
     initCaseStudyVideo();
     init3DDesign();
-    loadQuestion();
     showSlides();
+    // Call loadQuestion after everything else is initialized
+    setTimeout(function() {
+      loadQuestion();
+    }, 100);
   });
 })();
 
